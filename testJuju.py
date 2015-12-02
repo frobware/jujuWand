@@ -4,6 +4,7 @@ import os
 import subprocess
 import re
 from argparse import ArgumentParser
+from wand import run
 
 """
 Run juju tests.
@@ -18,43 +19,11 @@ Options:
 """
 
 
-def run(cmd, write_to=None, fail_ok=False):
-    """Run a command in a shell, return its output.
-
-    If fail_ok == True, will return the text output of cmd and the return code
-    of the command. If fail_ok == False, just return the output of cmd.
-
-    At some point I will just change this to raise an exception.
-
-    :param cmd: command to run
-    :param write_to: file write to
-    :param fail_ok: if true, won't exit program on cmd failure
-    :return: combined stdout and stderr of cmd. If fail_ok, also return code.
-    """
-    out = []
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                         shell=True, bufsize=1)
-    lines_iterator = iter(p.stdout.readline, b'')
-
-    for line in lines_iterator:
-        print line,  # yield line
-        out.append(line)
-        if write_to is not None:
-            write_to.write(line)
-
-    p.poll()
-
-    if p.returncode and not fail_ok:
-        exit(p.returncode)
-
-    elif fail_ok:
-        return out, p.returncode
-
-    return out
-
-
 def main(args):
-    install_out = run('go install  -v github.com/juju/juju/...')
+    try:
+        install_out = run('go install  -v github.com/juju/juju/...')
+    except subprocess.CalledProcessError as e:
+        exit(e.returncode)
     output_filename = os.path.join(os.path.expanduser('~'),
                                    '.jujutestoutput.txt')
     rerun_filename = os.path.join(os.path.expanduser('~'),
@@ -64,9 +33,9 @@ def main(args):
         if os.path.isfile(rerun_filename):
             os.remove(rerun_filename)
 
-        with file(output_filename, 'w') as f:
-            test_out, rc = run('go test ./...', f, fail_ok=True)
-            f.writelines(test_out)
+        filename = output_filename
+        with open(output_filename, 'w') as f:
+            test_out, rc = run('go test ./...', write_to=f, fail_ok=True)
 
     else:
         # Don't have a new binary, so just re-run tests
@@ -75,8 +44,8 @@ def main(args):
         elif os.path.isfile(output_filename):
             filename = output_filename
 
-        with file(filename) as f:
-            test_out = f.readlines()
+    with open(filename) as f:
+        test_out = f.readlines()
 
     unrecoverable = False
     re_run = []
@@ -104,9 +73,9 @@ def main(args):
 
     if not unrecoverable:
         print 'Re-running failed tests...'
-        with file(rerun_filename, 'w') as f:
+        with open(rerun_filename, 'w') as f:
             for package in re_run:
-                out, rc = run('go test ' + package, f, fail_ok=True)
+                out, rc = run('go test ' + package, write_to=f, fail_ok=True)
 
 
 if __name__ == '__main__':

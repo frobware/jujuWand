@@ -36,7 +36,7 @@ def juju(cmd, quiet=False, write_to=None, fail_ok=False):
     return run("juju " + cmd, quiet, write_to, fail_ok)
 
 
-def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False):
+def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, timestamp=False):
     if not quiet:
         print cmd
     out = ""
@@ -44,22 +44,24 @@ def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False):
     lines_iterator = iter(p.stdout.readline, b"")
 
     for line in lines_iterator:
-        now = datetime.utcnow().isoformat(' ')
-        ts_line = now + '| ' + line
-        if not quiet:
-            print ts_line,
-        if write_to is not None:
-            write_to.write(ts_line)
         if not empty_return:
             out += line
+        if timestamp:
+            now = datetime.utcnow().isoformat(' ')
+            line = now + '| ' + line
+        if not quiet:
+            print line,
+        if write_to is not None:
+            write_to.write(line)
+        
     p.poll()
 
-    if p.returncode:
-        if not fail_ok:
-            raise subprocess.CalledProcessError(p.returncode, cmd, out)
-        else:
-            print "Command returned", p.returncode
+    if fail_ok:
+        return out, p.returncode
 
+    if p.returncode:
+        raise subprocess.CalledProcessError(p.returncode, cmd, out)
+    
     return out
 
 
