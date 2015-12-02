@@ -11,7 +11,7 @@ connections = {}
 
 
 def connect(thing_name, thing_type, address):
-    cmd = 'ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@{} sudo tail -f /var/log/juju/machine-{}.log'.format(
+    cmd = 'ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@{} sudo tail -n 10000 -f /var/log/juju/machine-{}.log'.format(
         address, thing_name)
     file_name = '{}-{}.log'.format(thing_type, thing_name)
     connections[name] = {
