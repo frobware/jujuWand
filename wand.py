@@ -97,6 +97,17 @@ def wait(forever=False):
                     keep_trying = True
                     continue
 
+                containers = m.get('containers')
+                if containers:
+                    for cname, c in containers.iteritems():
+                        watch(watching, cname, agent_state)
+                        agent_state = c.get('agent-state')
+                        if agent_state != 'started':
+                            keep_trying = True
+
+                if keep_trying:
+                    continue
+
             for service_name, service in s['services'].iteritems():
                 if 'units' not in service:
                     continue
