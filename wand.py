@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import subprocess
 import yaml
@@ -18,8 +18,11 @@ def status():
     return yaml.load(run('juju status', quiet=True))
 
 
-def juju(cmd, quiet=False, write_to=None, fail_ok=False):
-    print "juju cmd:", cmd
+def juju(cmd, quiet=False, write_to=None, fail_ok=False, silent=False):
+    if silent:
+        quiet = True
+    if not silent:
+        print("juju cmd:", cmd)
     offline_cmds = [
         'destroy-environment',
         'switch',
@@ -38,19 +41,20 @@ def juju(cmd, quiet=False, write_to=None, fail_ok=False):
 
 def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, timestamp=False):
     if not quiet:
-        print cmd
+        print(cmd)
     out = ""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, bufsize=1)
     lines_iterator = iter(p.stdout.readline, b"")
 
     for line in lines_iterator:
+        line = line.decode()
         if not empty_return:
             out += line
         if timestamp:
             now = datetime.utcnow().isoformat(' ')
             line = now + '| ' + line
         if not quiet:
-            print line,
+            print(line, end=' ')
         if write_to is not None:
             write_to.write(line)
         
@@ -60,6 +64,9 @@ def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, time
         return out, p.returncode
 
     if p.returncode:
+        print('-' * 80)
+        print(cmd, 'returned', p.returncode)
+        print(out)
         raise subprocess.CalledProcessError(p.returncode, cmd, out)
     
     return out
@@ -67,7 +74,7 @@ def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, time
 
 def watch(store, key, value):
     if store.get(key) != value:
-        print datetime.now(), key + ":", value
+        print(datetime.now(), key + ":", value)
         store[key] = value
 
 
@@ -85,7 +92,7 @@ def wait(forever=False):
         keep_trying = False
 
         try:
-            for name, m in s['machines'].iteritems():
+            for name, m in s['machines'].items():
                 agent_state = m.get('agent-state')
                 watch(watching, name, agent_state)
                 if agent_state != 'started':
@@ -99,7 +106,7 @@ def wait(forever=False):
 
                 containers = m.get('containers')
                 if containers:
-                    for cname, c in containers.iteritems():
+                    for cname, c in containers.items():
                         watch(watching, cname, agent_state)
                         agent_state = c.get('agent-state')
                         if agent_state != 'started':
@@ -108,10 +115,10 @@ def wait(forever=False):
                 if keep_trying:
                     continue
 
-            for service_name, service in s['services'].iteritems():
+            for service_name, service in s['services'].items():
                 if 'units' not in service:
                     continue
-                for unit in service['units'].values():
+                for unit in list(service['units'].values()):
                     name = unit['machine'] + ' ' + service_name
                     watch(watching, name, unit['agent-state'])
 
@@ -125,8 +132,8 @@ def wait(forever=False):
                         keep_trying = True
                         continue
         except KeyError as e:
-            print e
-            print "continuing..."
+            print(e)
+            print("continuing...")
 
 
 if __name__ == '__main__':
