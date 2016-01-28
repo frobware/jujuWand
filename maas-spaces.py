@@ -267,9 +267,8 @@ if __name__ == '__main__':
         VLAN('db', '192.168.12.0/24', 12, 'enp2s0.12'),
     ]
 
-    bundle_charm = '/home/dooferlad/dev/charms/mediawiki/bundle.yaml'
+    bundle_charm = 'charms/mediawiki/bundle.yaml'
 
     bootstrap_node = maas_setup(vlans, bundle_charm)
-    #bootstrap_node = 'nasty-quilt.maas'
     deploy(bootstrap_node, bundle_charm)
     check(vlans)

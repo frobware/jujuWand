@@ -1,4 +1,4 @@
-email: <your address here>
+email: maas@example.com
 ipaddress: 192.168.1.2
 network:
   broadcast_ip: 192.168.1.255

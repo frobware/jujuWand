@@ -3,6 +3,7 @@ from datetime import datetime
 import subprocess
 import requests
 import os
+import sys
 from urllib.parse import urlparse
 from threading import Timer
 
@@ -28,7 +29,7 @@ def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, time
                 now = datetime.utcnow().isoformat(' ')
                 line = now + '| ' + line
             if not quiet:
-                print(line, end=' ')
+                sys.stdout.write(line)
             if write_to is not None:
                 write_to.write(line)
 
@@ -84,7 +85,7 @@ def install_ppas(ppas):
             sudo('add-apt-repository -y ' + ppa)
 
 
-def install_packages(packages, ppas):
+def install_packages(packages):
     packages_to_install = []
     for package in packages:
         rc = run('dpkg-query -s ' + package, fail_ok=True, quiet=True)[1]
