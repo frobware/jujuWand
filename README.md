@@ -4,6 +4,19 @@ A bunch of tools for debugging and automating Juju
 These scripts are here because it is good to share. This isn't my finest work;
 it isn't PEP8 complient, it isn't well (at all?) commented and it may not work. You have been warned.
 
+## shelly.py
+Some little helpers around the shell.
+
+## install_maas.py
+Combined with the information from maas.yaml will set up a MAAS. Tested on a clean
+Ubuntu Wily install. Currently has some hard coded stuff around the PDU that assumes
+it is my particular set up, but it is easy enough to do something parametrised.
+
+## maas-spaces.py
+Takes a freshly installed MAAS and creates the subnets, VLANs, spaces needed for
+a charm bundle and then deploys the bundle. Currently contains hard coded VLAN
+configurations and charm location.
+
 ## state.py
 Runs through 1+ logs and outputs a table showing what was connected to state servers and when.
 
@@ -19,7 +32,7 @@ This is probably:
    * translate: Used to translate the IP address of a state server to the index of the connection string in the output.
 
 ## wand.py
-A very lightweight wrapper around the Juju CLI and the local shell.
+A very lightweight wrapper around the Juju CLI.
 
 While I mostly use this by importing it and using it as an API, it will currently, if just run as a script,
  1. set up a high availability Juju state server cluster in my EC2 account with an ubuntu charm deployed
