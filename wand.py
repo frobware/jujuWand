@@ -2,9 +2,9 @@
 
 import subprocess
 import yaml
-from pprint import pprint
 import time
 from datetime import datetime
+from shelly import run
 
 
 def wait_for_connection():
@@ -37,39 +37,6 @@ def juju(cmd, quiet=False, write_to=None, fail_ok=False, silent=False):
         wait_for_connection()
 
     return run("juju " + cmd, quiet, write_to, fail_ok)
-
-
-def run(cmd, quiet=False, write_to=None, fail_ok=False, empty_return=False, timestamp=False):
-    if not quiet:
-        print(cmd)
-    out = ""
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, bufsize=1)
-    lines_iterator = iter(p.stdout.readline, b"")
-
-    for line in lines_iterator:
-        line = line.decode()
-        if not empty_return:
-            out += line
-        if timestamp:
-            now = datetime.utcnow().isoformat(' ')
-            line = now + '| ' + line
-        if not quiet:
-            print(line, end=' ')
-        if write_to is not None:
-            write_to.write(line)
-        
-    p.poll()
-
-    if fail_ok:
-        return out, p.returncode
-
-    if p.returncode:
-        print('-' * 80)
-        print(cmd, 'returned', p.returncode)
-        print(out)
-        raise subprocess.CalledProcessError(p.returncode, cmd, out)
-    
-    return out
 
 
 def watch(store, key, value):

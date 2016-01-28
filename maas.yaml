@@ -1,0 +1,29 @@
+email: <your address here>
+ipaddress: 192.168.1.2
+network:
+  broadcast_ip: 192.168.1.255
+  ip: 192.168.1.2
+  ip_range_high: 192.168.1.99
+  ip_range_low: 192.168.1.10
+  management: 2
+  static_ip_range_high: 192.168.1.250
+  static_ip_range_low: 192.168.1.100
+  subnet_mask: 255.255.255.0
+  router_ip: 192.168.1.1
+nodes:
+  b8:ae:ed:76:7f:f9:
+    pdu_index: 5
+    hostname: mal
+  b8:ae:ed:76:80:72:
+    pdu_index: 6
+    hostname: wash
+  c0:3f:d5:65:8f:dc:
+    pdu_index: 1
+    hostname: kaylee
+  c0:3f:d5:65:9f:1e:
+    pdu_index: 0
+    hostname: river
+password: 12qwaszx
+pdu_path: /home/dooferlad/dev/trivial_pdu
+profile: maas
+username: dooferlad
