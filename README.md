@@ -34,18 +34,11 @@ This is probably:
 ## wand.py
 A very lightweight wrapper around the Juju CLI.
 
-While I mostly use this by importing it and using it as an API, it will currently, if just run as a script,
- 1. set up a high availability Juju state server cluster in my EC2 account with an ubuntu charm deployed
- 2. kill a state server
- 3. re-run ensure-availability to heal Jujus state server cluster.
-
-This happens to be what I was playing with at the time. It will probably change or bit-rot.
-
 ## realtime_logs.py
 If you kill random machines by shutting them down, sometimes it helps to be reading their log files before they
 go away!
 
-This script will connect to evey machine in your Juju environment anc capture the output of
+This script will connect to evey machine in your Juju environment and capture the output of
 tail -f /var/log/juju/machine-?.log. It can miss stuff and if it reconnects to a machine for some reason you will
 get duplication. It is just better to have something rather than nothing when debugging sometimes.
 
