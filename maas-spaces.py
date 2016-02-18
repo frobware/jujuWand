@@ -270,7 +270,7 @@ if __name__ == '__main__':
 
     bundle_charm = 'charms/mediawiki/bundle.yaml'
 
-    #bootstrap_node = maas_setup(vlans, bundle_charm)
-    #deploy(bootstrap_node, bundle_charm)
+    bootstrap_node = maas_setup(vlans, bundle_charm)
+    deploy(bootstrap_node, bundle_charm)
     wait()
     check(vlans)
