@@ -13,9 +13,14 @@ def wait_for_connection():
         time.sleep(5)
 
 
+def bootstrapped():
+    out, rc = run('timeout 1 juju status', fail_ok=True, quiet=True)
+    return rc == 0
+
+
 def status():
     wait_for_connection()
-    return yaml.load(run('juju status', quiet=True))
+    return yaml.load(run('juju status --format yaml', quiet=True))
 
 
 def juju(cmd, quiet=False, write_to=None, fail_ok=False, silent=False):
@@ -87,7 +92,8 @@ def wait(forever=False):
                     continue
                 for unit in list(service['units'].values()):
                     name = unit['machine'] + ' ' + service_name
-                    watch(watching, name, unit['agent-state'])
+                    unit_state = unit.get('agent-state', False) or unit.get('agent-status')['current']
+                    watch(watching, name, unit_state)
 
                     name += ' workload-status'
                     if unit['workload-status'].get('message'):
@@ -95,7 +101,7 @@ def wait(forever=False):
                     else:
                         watch(watching, name, '')
 
-                    if unit['agent-state'] != 'started':
+                    if unit_state not in ['started', 'idle']:
                         keep_trying = True
                         continue
         except KeyError as e:

@@ -21,6 +21,10 @@ Options:
 
 
 def main(args):
+    long_tests = {
+        'state': 270,
+        'mongo': 19,
+    }
     start_time = datetime.now()
     try:
         install_out = run('go install  -v github.com/juju/juju/...')
@@ -44,6 +48,12 @@ def main(args):
             if mod and mod.group(1) not in packages:
                 packages.append(mod.group(1))
         filename = output_filename
+
+        # Sort packages to do long tests last
+        # TODO: long tests first, in parallel...
+        packages = sorted(packages, key=lambda p: long_tests.get(p, 0))
+        print(packages)
+
         with open(output_filename, 'w') as f:
             for package in packages:
                 test_out, rc = run('GOMAXPROCS=32 go test github.com/juju/juju/' + package, write_to=f, fail_ok=True)

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from wand import juju, run, status, wait
+from wand import juju, run, status, wait, bootstrapped
 import json
 import yaml
 import ipaddress
@@ -218,8 +218,9 @@ def maas_setup(vlans, bundle_charm):
 
 
 def deploy(bootstrap_node_name, bundle_charm):
-    juju('bootstrap --upload-tools --to "{}"'.format(
-          bootstrap_node_name))
+    if not bootstrapped():
+        juju('bootstrap --upload-tools --to "{}"'.format(
+              bootstrap_node_name))
     wait()
     juju('deploy ' + bundle_charm)
     wait()
@@ -269,6 +270,7 @@ if __name__ == '__main__':
 
     bundle_charm = 'charms/mediawiki/bundle.yaml'
 
-    bootstrap_node = maas_setup(vlans, bundle_charm)
-    deploy(bootstrap_node, bundle_charm)
+    #bootstrap_node = maas_setup(vlans, bundle_charm)
+    #deploy(bootstrap_node, bundle_charm)
+    wait()
     check(vlans)
